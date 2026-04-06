@@ -109,6 +109,9 @@ button:active {
     margin: 10px 0 10px 40px;
     width: 80%;
 }
+.fa-solid{
+    color: #999;
+}
 
 .handle{
     font-size: 12px;
