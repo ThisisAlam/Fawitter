@@ -3,7 +3,7 @@
 
 // Data //
 
-const tweetsData = [   
+let tweetsData = [   
     {
         handle: `@TrollBot66756542 💎`,
         profilePic: `images/troll.jpg`,
@@ -63,93 +63,102 @@ const tweetsData = [
 ]
 // Function uuid //
 import { v4 as uuidv4 } from 'https://jspm.dev/uuid';
+// localStorage.clear()
 
-// Taking Control of ID's //
+// LOAD FROM LOCAL STORAGE (IMPORTANT: must come early)
+const storedTweets = JSON.parse(localStorage.getItem('tweetsData'))
+if (storedTweets) {
+   tweetsData = storedTweets
+}
+
+// DOM ELEMENTS
 const tweetInput = document.getElementById('tweet-input')
+const feed = document.getElementById('feed')
 
-// Filtering tweetObjReplies //
-const tweetObjReplies = tweetsData.filter(function(tweet){
-   return tweet.replies
-})[0]
 
-// Event Listener // 
-// Run count for like and retweet //  
-// Open Comment //
-
-// Function handleLikeClick() filtering tweetTargetObj for Likes //
+// FUNCTIONS
+// Function handleLikeClick()
 function handleLikeClick(tweetId) {
    const tweetTargetObj = tweetsData.filter(function(tweet){
-      return tweet.uuid.includes(tweetId)
+      return tweet.uuid === tweetId
    })[0]
    if (!tweetTargetObj.isLiked){
       tweetTargetObj.likes++
    } else { 
       tweetTargetObj.likes-- 
    }
-      tweetTargetObj.isLiked = !tweetTargetObj.isLiked
-      render()
+
+   tweetTargetObj.isLiked = !tweetTargetObj.isLiked
+
+   localStorage.setItem('tweetsData', JSON.stringify(tweetsData))
+   render()
 }
+
+
 // Function handleRetweetClick() filtering tweetTargetObj for Retweets //
 function handleRetweetClick(tweetId) {
    const tweetTargetObj = tweetsData.filter(function(tweet){
-      return tweet.uuid.includes(tweetId)
+      return tweet.uuid === tweetId
    })[0]
    if (!tweetTargetObj.isRetweeted){
       tweetTargetObj.retweets++
-      
-   } else { tweetTargetObj.retweets-- }
-      tweetTargetObj.isRetweeted = !tweetTargetObj.isRetweeted
-      render()
+   } else { 
+      tweetTargetObj.retweets-- 
+   }
+
+   tweetTargetObj.isRetweeted = !tweetTargetObj.isRetweeted
+
+   localStorage.setItem('tweetsData', JSON.stringify(tweetsData))
+   render()
 }
+
+
 
 // Function handleReplyClick() for comments and replies //
 function handleReplyClick(tweetId) {
    document.getElementById(`replies-${tweetId}`).classList.toggle('hidden')
 }
 
+// EVENT LISTENER
 document.addEventListener('click', function(e){
-   console.log('like', e.target.dataset.like)
-   console.log('retweet', e.target.dataset.retweet)
-   console.log('reply', e.target.dataset.reply)
 
-   // Like funtion //
    if (e.target.dataset.like){
-         handleLikeClick(e.target.dataset.like)
+      handleLikeClick(e.target.dataset.like)
    }
 
-   // Retweet funtion //
    if (e.target.dataset.retweet){
-         handleRetweetClick(e.target.dataset.retweet)
+      handleRetweetClick(e.target.dataset.retweet)
    }
 
-   // Comment/Reply funtion //
    if (e.target.dataset.reply){
       handleReplyClick(e.target.dataset.reply)
    }
 
-   // Tweet Btn //
-   if (e.target.id.includes('tweet-btn')){
-      console.log(tweetInput.value)
-      let newTweet = {
-        handle: `@fakhar.alam35`,
-        profilePic: `/images/scrimbalogo.png`,
-        likes: 0,
-        retweets: 0,
-        tweetText: tweetInput.value ,
-        replies: [],
-        isLiked: false,
-        isRetweeted: false,
-        uuid: uuidv4(),
+   if (e.target.id === 'tweet-btn'){
+      if(tweetInput.value){
+         let newTweet = {
+            handle: `@fakharalam`,
+            profilePic: `/images/profile.png`,
+            likes: 0, 
+            retweets: 0,
+            tweetText: tweetInput.value,
+            replies: [],
+            isLiked: false,
+            isRetweeted: false,
+            uuid: uuidv4(),
+         }
+         tweetsData.unshift(newTweet)
       }
-      console.log(newTweet.uuid)
-      tweetsData.unshift(newTweet)
+
+      localStorage.setItem('tweetsData', JSON.stringify(tweetsData))
+
       render()
-       tweetInput.value = ''
+      tweetInput.value = ''
    }
 })
 
+
 // Only 1 FeedHTML //
-const feed = document.getElementById('feed')
 function getFeedHTML() {
    let feedHTML = ''
    tweetsData.forEach(function(tweets){
@@ -188,15 +197,15 @@ function getFeedHTML() {
                      <p class="handle">${tweets.handle}</p>
                      <p class="tweet-text">${tweets.tweetText}</p>
                      <div class="tweet-details">
-                        <i class="fa-regular fa-comment-dots" data-reply="${tweets.uuid}" id="comment-btn"></i>
+                        <i class="fa-regular fa-comment-dots" data-reply="${tweets.uuid}"></i>
                         <span class="tweet-detail">
                            ${tweets.replies.length}
                         </span>
-                        <i class="fa-solid fa-heart ${likeIconClass}" data-like="${tweets.uuid}" id="like-btn"></i>
+                        <i class="fa-solid fa-heart ${likeIconClass}" data-like="${tweets.uuid}"></i>
                         <span class="tweet-detail">
                            ${tweets.likes}
                         </span>
-                        <i class="fa-solid fa-retweet ${retweetIconClass}" data-retweet="${tweets.uuid}" id="retweet-btn"></i>
+                        <i class="fa-solid fa-retweet ${retweetIconClass}" data-retweet="${tweets.uuid}"></i>
                         <span class="tweet-detail">
                            ${tweets.retweets}
                         </span>
