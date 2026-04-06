@@ -61,11 +61,9 @@ const tweetsData = [
     },     
 ]
 
-
 // Taking Control of ID's //
 const tweetInput = document.getElementById('tweet-input')
 const tweetBtn = document.getElementById('tweet-btn')
-
 
 // Listening to Event //
 tweetBtn.addEventListener('click', function(){
@@ -73,49 +71,64 @@ tweetBtn.addEventListener('click', function(){
 })
 
 
-// Filtering tweetObj //
-const tweetObj = tweetsData.filter(function(tweet){
-   return tweet
-})
-
 
 // Filtering tweetObjReplies //
 const tweetObjReplies = tweetsData.filter(function(tweet){
    return tweet.replies
 })[0]
 
-// function count for like or retweet //
+// Event Listener // 
+// Run count for like and retweet //  
+// Open Comment //
 const commentBtn = document.getElementById("comment-btn")
 const likeBtn = document.getElementById("like-btn")
 const retweetBtn = document.getElementById("retweet-btn")
 
+// Function handleLikeClick() filtering tweetTargetObj for Likes //
+function handleLikeClick(tweetId) {
+   const tweetTargetObj = tweetsData.filter(function(tweet){
+      return tweet.uuid.includes(tweetId)
+   })[0]
+   if (!tweetTargetObj.isLiked){
+      tweetTargetObj.likes++
+   } else { tweetTargetObj.likes-- }
+      tweetTargetObj.isLiked = !tweetTargetObj.isLiked
+      render()
+}
+// Function handleRetweetClick() filtering tweetTargetObj for Retweets //
+function handleRetweetClick(tweetId) {
+   const tweetTargetObj = tweetsData.filter(function(tweet){
+      return tweet.uuid.includes(tweetId)
+   })[0]
+   if (!tweetTargetObj.isRetweeted){
+      tweetTargetObj.retweets++
+   } else { tweetTargetObj.retweets-- }
+      tweetTargetObj.isRetweeted = !tweetTargetObj.isRetweeted
+      render()
+}
+
 document.addEventListener('click', function(e){
-   
+   console.log('like', e.target.dataset.like)
+   console.log('retweet', e.target.dataset.retweet)
+   console.log('reply', e.target.dataset.reply)
+
    // Like funtion //
-   if (e.target.document.getElementById("like-btn")){
-      if (!tweetObj.isLiked){
-         tweetObj.likes++
-      } else { tweetObj.likes-- }
-         tweetObj.isLiked = !tweetObj.isLiked
-         
+   if (e.target.dataset.like){
+         handleLikeClick(e.target.dataset.like)
    }
 
    // Retweet funtion //
-   if (e.target.document.getElementById("retweet-btn")){
-      if (!tweetObj.isRetweeted){
-         tweetObj.retweets++
-      } else { tweetObj.retweets-- }
-         tweetObj.isRetweeted = !tweetObj.isRetweeted
-         
+   if (e.target.dataset.retweet){
+         handleRetweetClick(e.target.dataset.retweet)
    }
 
    // comment funtion //
    if (e.target.document.getElementById("comment-btn")){
-      if (!tweetObj.isLiked){
-         tweetObj.likes++
-      } else { tweetObj.likes++ }
-         tweetObj.isLiked = !tweetObj.isLiked
-         
+      if (!tweetObj.replies.length > 0) {
+         e.target.id.parentElement.style.display = 'none'
+      } else {
+         e.target.id.parentElement.style.display = 'flex'
+      }
    }
 
 })
@@ -133,15 +146,15 @@ function getFeedHTML() {
                      <p class="handle">${tweets.handle}</p>
                      <p class="tweet-text">${tweets.tweetText}</p>
                      <div class="tweet-details">
-                        <i class="fa-regular fa-comment-dots" id="comment-btn"></i>
+                        <i class="fa-regular fa-comment-dots" data-reply="${tweets.uuid}" id="comment-btn"></i>
                         <span class="tweet-detail">
                            ${tweets.replies.length}
                         </span>
-                        <i class="fa-regular fa-heart" id="like-btn"></i>
+                        <i class="fa-solid fa-heart" data-like="${tweets.uuid}" id="like-btn"></i>
                         <span class="tweet-detail">
                            ${tweets.likes}
                         </span>
-                        <i class="fa-solid fa-retweet" id="retweet-btn"></i>
+                        <i class="fa-solid fa-retweet" data-retweet="${tweets.uuid}" id="retweet-btn"></i>
                         <span class="tweet-detail">
                            ${tweets.retweets}
                         </span>
@@ -153,12 +166,10 @@ function getFeedHTML() {
    return feedHTML
 }
 
-
 // Function render() //
 function render(){
    feed.innerHTML = getFeedHTML()
 }
-
 
 // Calling function render () //
 render()

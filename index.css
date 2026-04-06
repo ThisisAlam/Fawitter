@@ -112,6 +112,17 @@ button:active {
 .fa-solid{
     color: #999;
 }
+.fa-comment-dots, .fa-heart, .fa-retweet {
+    cursor: pointer;
+    transition: transform 0.1s ease
+}
+.fa-comment-dots:hover, .fa-heart:hover, .fa-retweet:hover, 
+.fa-comment-dots:focus, .fa-heart:focus, .fa-retweet:focus {
+    transform: scale(1.15);
+}
+.fa-comment-dots:active, .fa-heart:active, .fa-retweet:active {
+    transform: scale(0.98);
+}
 
 .handle{
     font-size: 12px;
